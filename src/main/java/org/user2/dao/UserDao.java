@@ -4,6 +4,7 @@ import org.user.domain.User;
 
 import java.sql.*;
 
+// 클래스 계층구조를 통해 관심사 분리(1. DB 연결 방법, 2. SQL 작성, 파라미터 바인딩, 쿼리 실행 등)
 public abstract class UserDao {
     public void add(User user) throws ClassNotFoundException, SQLException {
         Connection c = getConnection();
@@ -41,21 +42,25 @@ public abstract class UserDao {
         return user;
     }
 
-    private Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/springbook", "spring", "book");
-        return c;
-    }
+    // 추상 메서드로 선언하여 하위 클래스에서 구현 -> 템플릿 메서드 패턴
+    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
 
+    // 하위 클래스에서 구현 -> 팩토리 메서드 패턴
     public class NUserDao extends UserDao {
         public Connection getConnection() throws ClassNotFoundException, SQLException {
-
+            // N사에서는 다르게 DB 연결 가능
+            Class.forName("org.mariadb.jdbc.Driver");
+            Connection c = DriverManager.getConnection("jdbc:mariadb://localhost:3306/springbook", "spring", "book");
+            return c;
         }
     }
 
     public class DUserDao extends UserDao {
         public Connection getConnection() throws ClassNotFoundException, SQLException {
-
+            // D사에서는 다르게 DB 연결 가능
+            Class.forName("org.h2.Driver");
+            Connection c = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/test", "sa", "");
+            return c;
         }
     }
 }
